@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Progress Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .dashboard-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .dashboard-card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .task-item {
+            transition: all 0.2s ease;
+        }
+        .task-item:hover {
+            background-color: #f1f5f9;
+        }
+        .project-card {
+            transition: all 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-ring__background {
+            stroke: #e2e8f0;
+        }
+        .progress-ring__progress {
+            stroke: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-900">Project Progress Dashboard</h1>
+            <p class="text-gray-600 mt-2">Track and manage your 15D projects</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Internal Input -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-md p-6 dashboard-card">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Internal Project Input</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                            <input type="text" id="projectName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter project name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Project ID</label>
+                            <input type="text" id="projectId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter project ID">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Project Status</label>
+                            <select id="projectStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="planning">Planning</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="completed">Completed</option>
+                                <option value="on-hold">On Hold</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Project Manager</label>
+                            <input type="text" id="projectManager" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter manager name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Budget (₦)</label>
+                            <input type="number" id="budget" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter budget">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Progress (%)</label>
+                            <input type="range" id="progress" min="0" max="100" value="0" class="w-full">
+                            <div class="flex justify-between text-sm text-gray-500 mt-1">
+                                <span>0%</span>
+                                <span id="progressValue">0%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea id="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Project description"></textarea>
+                        </div>
+                        
+                        <button id="saveProject" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200 font-medium">
+                            Save Project
+                        </button>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h3 class="font-medium text-blue-800 mb-2">Public Link</h3>
+                            <p class="text-sm text-blue-700 mb-2">Generate a link to share this project with others:</p>
+                            <button id="generateLinkBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-medium">
+                                Generate Public Link
+                            </button>
+                            <div id="publicLinkContainer" class="mt-2 hidden">
+                                <p class="text-xs text-gray-600 mb-1">Share this link:</p>
+                                <div class="flex">
+                                    <input type="text" id="publicLink" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm" readonly>
+                                    <button id="copyLinkBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-r-md text-sm hover:bg-gray-300 transition">
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tasks Section -->
+                <div class="bg-white rounded-xl shadow-md p-6 dashboard-card mt-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Task Management</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Task Name</label>
+                            <input type="text" id="taskName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter task name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Task Status</label>
+                            <select id="taskStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="not-started">Not Started</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+                            <input type="text" id="assignedTo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Assignee name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                            <input type="date" id="taskDueDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <button id="saveTask" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200 font-medium">
+                            Add Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Customer Dashboard -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-md p-6 dashboard-card mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">Project Overview</h2>
+                        <div class="flex space-x-2">
+                            <button id="refreshBtn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-300 transition">
+                                Refresh
+                            </button>
+                            <button id="exportBtn" class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 transition">
+                                Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="projectDetails" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Project details will be populated here -->
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-indigo-50 p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-indigo-800">Project Status</h3>
+                            <p class="text-2xl font-bold text-indigo-900 mt-1" id="statusDisplay">Planning</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-green-800">Progress</h3>
+                            <p class="text-2xl font-bold text-green-900 mt-1" id="progressDisplay">0%</p>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-amber-800">Days Remaining</h3>
+                            <p class="text-2xl font-bold text-amber-900 mt-1" id="daysRemaining">15</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container mb-8">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 dashboard-card">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Project Tasks</h2>
+                    <div id="tasksList" class="space-y-3">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize project data
+        let projects = JSON.parse(localStorage.getItem('projects')) || [];
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        
+        // DOM Elements
+        const projectName = document.getElementById('projectName');
+        const projectId = document.getElementById('projectId');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const projectStatus = document.getElementById('projectStatus');
+        const projectManager = document.getElementById('projectManager');
+        const budget = document.getElementById('budget');
+        const progress = document.getElementById('progress');
+        const progressValue = document.getElementById('progressValue');
+        const description = document.getElementById('description');
+        const saveProject = document.getElementById('saveProject');
+        const taskName = document.getElementById('taskName');
+        const taskStatus = document.getElementById('taskStatus');
+        const assignedTo = document.getElementById('assignedTo');
+        const taskDueDate = document.getElementById('taskDueDate');
+        const saveTask = document.getElementById('saveTask');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const projectDetails = document.getElementById('projectDetails');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const progressDisplay = document.getElementById('progressDisplay');
+        const daysRemaining = document.getElementById('daysRemaining');
+        const tasksList = document.getElementById('tasksList');
+        const progressChart = document.getElementById('progressChart');
+        const generateLinkBtn = document.getElementById('generateLinkBtn');
+        const publicLinkContainer = document.getElementById('publicLinkContainer');
+        const publicLink = document.getElementById('publicLink');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        
+        // Set today as default dates
+        const today = new Date().toISOString().split('T')[0];
+        startDate.value = today;
+        endDate.value = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        
+        // Update progress value display
+        progress.addEventListener('input', function() {
+            progressValue.textContent = this.value + '%';
+        });
+        
+        // Save project
+        saveProject.addEventListener('click', function() {
+            const project = {
+                id: projectId.value || Date.now().toString(),
+                name: projectName.value,
+                startDate: startDate.value,
+                endDate: endDate.value,
+                status: projectStatus.value,
+                manager: projectManager.value,
+                budget: budget.value,
+                progress: progress.value,
+                description: description.value
+            };
+            
+            // Check if project exists
+            const existingIndex = projects.findIndex(p => p.id === project.id);
+            if (existingIndex !== -1) {
+                projects[existingIndex] = project;
+            } else {
+                projects.push(project);
+            }
+            
+            localStorage.setItem('projects', JSON.stringify(projects));
+            updateDashboard();
+            alert('Project saved successfully!');
+        });
+        
+        // Save task
+        saveTask.addEventListener('click', function() {
+            const task = {
+                id: Date.now().toString(),
+                name: taskName.value,
+                status: taskStatus.value,
+                assignedTo: assignedTo.value,
+                dueDate: taskDueDate.value
+            };
+            
+            tasks.push(task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            updateDashboard();
+            alert('Task added successfully!');
+        });
+        
+        // Refresh dashboard
+        refreshBtn.addEventListener('click', updateDashboard);
+        
+        // Export to PDF (simulated)
+        exportBtn.addEventListener('click', function() {
+            alert('PDF export functionality would be implemented here. In a real application, this would generate a PDF report.');
+        });
+        
+        // Generate public link
+        generateLinkBtn.addEventListener('click', function() {
+            const projectId = projectId.value || Date.now().toString();
+            // Use your actual Netlify domain
+            const baseUrl = 'https://jazzy-moonbeam-e9a33a.netlify.app/';
+            const publicUrl = `${baseUrl}?project=${projectId}`;
+            
+            publicLink.value = publicUrl;
+            publicLinkContainer.classList.remove('hidden');
+            
+            // Show success message
+            alert('Public link generated! Copy and share it with others.');
+        });
+        
+        // Copy link to clipboard
+        copyLinkBtn.addEventListener('click', function() {
+            publicLink.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        });
+        
+        // Update dashboard with current data
+        function updateDashboard() {
+            // Get latest project
+            const latestProject = projects[projects.length - 1] || {};
+            
+            // Update project details
+            projectDetails.innerHTML = `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">Project Name</h3>
+                    <p class="text-lg font-semibold text-gray-900">${latestProject.name || 'No project'}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">Project ID</h3>
+                    <p class="text-lg font-semibold text-gray-900">${latestProject.id || 'N/A'}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">Start Date</h3>
+                    <p class="text-lg font-semibold text-gray-900">${latestProject.startDate || 'N/A'}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">End Date</h3>
+                    <p class="text-lg font-semibold text-gray-900">${latestProject.endDate || 'N/A'}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">Manager</h3>
+                    <p class="text-lg font-semibold text-gray-900">${latestProject.manager || 'N/A'}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-500">Budget</h3>
+                    <p class="text-lg font-semibold text-gray-900">₦${latestProject.budget || '0'}</p>
+                </div>
+            `;
+            
+            // Update status display
+            statusDisplay.textContent = getProjectStatusText(latestProject.status);
+            
+            // Update progress display
+            progressDisplay.textContent = latestProject.progress + '%';
+            
+            // Calculate days remaining
+            if (latestProject.endDate) {
+                const endDate = new Date(latestProject.endDate);
+                const today = new Date();
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                daysRemaining.textContent = diffDays > 0 ? diffDays : 0;
+            } else {
+                daysRemaining.textContent = '15';
+            }
+            
+            // Update tasks list
+            updateTasksList();
+            
+            // Update chart
+            updateProgressChart();
+        }
+        
+        // Get status text
+        function getProjectStatusText(status) {
+            const statusMap = {
+                'planning': 'Planning',
+                'in-progress': 'In Progress',
+                'review': 'Review',
+                'completed': 'Completed',
+                'on-hold': 'On Hold'
+            };
+            return statusMap[status] || 'Unknown';
+        }
+        
+        // Update tasks list
+        function updateTasksList() {
+            tasksList.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = '<p class="text-gray-500 text-center py-4">No tasks added yet</p>';
+                return;
+            }
+            
+            // Sort tasks by status (completed last)
+            const sortedTasks = [...tasks].sort((a, b) => {
+                const statusOrder = { 'completed': 3, 'review': 2, 'in-progress': 1, 'not-started': 0 };
+                return statusOrder[b.status] - statusOrder[a.status];
+            });
+            
+            sortedTasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item border border-gray-200 rounded-lg p-4';
+                taskElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-medium text-gray-900">${task.name}</h3>
+                            <p class="text-sm text-gray-500">Assigned to: ${task.assignedTo || 'Unassigned'}</p>
+                        </div>
+                        <span class="status-badge ${getStatusClass(task.status)}">${getStatusText(task.status)}</span>
+                    </div>
+                    <div class="mt-2 flex justify-between items-center">
+                        <p class="text-sm text-gray-500">Due: ${task.dueDate || 'No date'}</p>
+                    </div>
+                `;
+                tasksList.appendChild(taskElement);
+            });
+        }
+        
+        // Get status class for badge
+        function getStatusClass(status) {
+            const statusClasses = {
+                'not-started': 'bg-gray-100 text-gray-800',
+                'in-progress': 'bg-blue-100 text-blue-800',
+                'review': 'bg-yellow-100 text-yellow-800',
+                'completed': 'bg-green-100 text-green-800'
+            };
+            return statusClasses[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // Get status text
+        function getStatusText(status) {
+            const statusTexts = {
+                'not-started': 'Not Started',
+                'in-progress': 'In Progress',
+                'review': 'Review',
+                'completed': 'Completed'
+            };
+            return statusTexts[status] || 'Unknown';
+        }
+        
+        // Update progress chart
+        function updateProgressChart() {
+            const latestProject = projects[projects.length - 1] || {};
+            const progressValue = parseInt(latestProject.progress) || 0;
+            
+            // Destroy existing chart if it exists
+            if (window.progressChartInstance) {
+                window.progressChartInstance.destroy();
+            }
+            
+            // Create new chart
+            window.progressChartInstance = new Chart(progressChart, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [progressValue, 100 - progressValue],
+                        backgroundColor: ['#4f46e5', '#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Check if we're in public view
+        function isPublicView() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.has('project');
+        }
+
+        // Load public project data
+        function loadPublicProject() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('project');
+            
+            if (projectId) {
+                const projects = JSON.parse(localStorage.getItem('projects')) || [];
+                const project = projects.find(p => p.id === projectId);
+                
+                if (project) {
+                    // Populate read-only view
+                    document.getElementById('projectName').value = project.name;
+                    document.getElementById('projectId').value = project.id;
+                    document.getElementById('startDate').value = project.startDate;
+                    document.getElementById('endDate').value = project.endDate;
+                    document.getElementById('projectStatus').value = project.status;
+                    document.getElementById('projectManager').value = project.manager;
+                    document.getElementById('budget').value = project.budget;
+                    document.getElementById('progress').value = project.progress;
+                    document.getElementById('progressValue').textContent = project.progress + '%';
+                    document.getElementById('description').value = project.description;
+                    
+                    // Disable editing
+                    disableEditing();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Disable all editing elements
+        function disableEditing() {
+            const inputs = document.querySelectorAll('input, select, textarea, button');
+            inputs.forEach(input => {
+                if (input.id !== 'refreshBtn' && input.id !== 'exportBtn') {
+                    input.disabled = true;
+                }
+            });
+            
+            // Hide save buttons
+            document.getElementById('saveProject').style.display = 'none';
+            document.getElementById('saveTask').style.display = 'none';
+            
+            // Update header
+            document.querySelector('header h1').textContent = 'Project Public Dashboard';
+        }
+
+        // Initialize based on view type
+        if (isPublicView()) {
+            loadPublicProject();
+        }
+        
+        // Initialize dashboard
+        updateDashboard();
+    </script>
+</body>
+</html>
