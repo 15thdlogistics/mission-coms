@@ -1,0 +1,17 @@
+name = "mission-comms"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "schema"
+database_name = "schema"
+
+[[durable_objects.bindings]]
+name = "ROUTER"
+class_name = "NotificationRouter"
+
+[ai]
+binding = "AI"
+
+[vars]
+GAS_URL = "YOUR_GOOGLE_SCRIPT_URL"
