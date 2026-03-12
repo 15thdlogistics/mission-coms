@@ -15,3 +15,7 @@ binding = "AI"
 
 [vars]
 GAS_URL = "YOUR_GOOGLE_SCRIPT_URL"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["NotificationRouter"]
